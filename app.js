@@ -15,9 +15,9 @@ module.exports = function appctor(opts) {
   app.get('/sha1q/:size/:input.png', function sha1qpPng(req, res, next) {
     var str = req.params.input;
 
-    gm(req.params.size, req.params.size, 'white')
+    gm(req.params.size, req.params.size, '#fff')
       .options(gmopts)
-      .draw('path ' + hashblot.sha1qpd(str))
+      .fill('#000').draw('path ' + hashblot.sha1qpd(str))
       .toBuffer('PNG',function (err, buffer) {
         if (err) return next(err);
         res.type('png');
