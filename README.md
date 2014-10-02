@@ -1,4 +1,3 @@
-images.hashblot.com
-===================
+# images.hashblot.com
 
-Hashblot image generation service
+This app generates Hashblot images for incoming requests.
