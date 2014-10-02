@@ -1,0 +1,24 @@
+{
+  "name": "images.hashblot.com",
+  "version": "0.0.0",
+  "description": "Hashblot image generation service",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stuartpb/images.hashblot.com.git"
+  },
+  "author": "Stuart P. Bentley <stuart@testtrack4.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stuartpb/images.hashblot.com/issues"
+  },
+  "homepage": "https://github.com/stuartpb/images.hashblot.com",
+  "dependencies": {
+    "express": "^4.9.5",
+    "gm": "^1.16.0",
+    "hashblot": "^0.2.0"
+  }
+}
