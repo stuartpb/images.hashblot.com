@@ -14,10 +14,14 @@ module.exports = function appctor(opts) {
 
   app.get('/sha1q/:size/:input.png', function sha1qpPng(req, res, next) {
     var str = req.params.input;
+    var size = req.params.size;
 
-    gm(req.params.size, req.params.size, '#fff')
-      .options(gmopts)
-      .fill('#000').draw('path ' + hashblot.sha1qpd(str))
+    gm(size, size, '#fff').options(gmopts)
+      .draw([
+        'viewbox 0 0 255 255',
+        'fill #000',
+        'fill-rule nonzero',
+        'path', hashblot.sha1qpd(str)].join(' '))
       .toBuffer('PNG',function (err, buffer) {
         if (err) return next(err);
         res.type('png');
