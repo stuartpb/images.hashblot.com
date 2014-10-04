@@ -14,12 +14,21 @@ module.exports = function appctor(opts) {
 
   app.get('/sha1q/:size/:input.png', function sha1qpPng(req, res, next) {
     var str = req.params.input;
-    var size = req.params.size;
+    var size;
+    try {
+      size = parseInt(req.params.size, 10);
+    } catch(err) {
+      return res.status(400).send('Invalid image size');
+    }
+    if (size < 15) {
+      res.redirect('/sha1q/15/' + req.params.input + '.png');
+    } if (size > 2048) {
+      res.redirect('/sha1q/2048/' + req.params.input + '.png');
+    }
 
     gm(size, size, '#fff').options(gmopts)
       .draw([
-        'viewbox 0 0 255 255',
-        'fill #000',
+        'scale', size/255, size/255,
         'fill-rule nonzero',
         'path', JSON.stringify(hashblot.sha1qpd(str))].join(' '))
       .toBuffer('PNG',function (err, buffer) {
