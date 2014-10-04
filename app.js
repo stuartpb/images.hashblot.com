@@ -21,7 +21,7 @@ module.exports = function appctor(opts) {
         'viewbox 0 0 255 255',
         'fill #000',
         'fill-rule nonzero',
-        'path', hashblot.sha1qpd(str)].join(' '))
+        'path', JSON.stringify(hashblot.sha1qpd(str))].join(' '))
       .toBuffer('PNG',function (err, buffer) {
         if (err) return next(err);
         res.type('png');
