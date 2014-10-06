@@ -56,7 +56,7 @@ var gmopts = opts.gm || {};
     try {
       size = parseInt(req.params.size, 10);
     } catch(err) {
-      return res.status(400).send('Invalid image size');
+      return next();
     }
 
     if (size < 15) {
@@ -85,7 +85,8 @@ var gmopts = opts.gm || {};
 
   var app = express();
 
-  app.get('/:hash/:path/:size/:input(|[^/]+?).:extension', hashpathImage);
+  app.get('/:hash/:path/:size(\\d+)/:input(|[^/]+?).:extension',
+    hashpathImage);
 
   return app;
 };
