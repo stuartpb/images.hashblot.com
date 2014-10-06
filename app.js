@@ -28,7 +28,7 @@ var gmopts = opts.gm || {};
 
     // 404 for extensions we don't support
     var extension = req.params.extension.toLowerCase();
-    if (extension != 'svg' && ~rasterTypes.indexOf(extension))
+    if (extension != 'svg' && !~rasterTypes.indexOf(extension))
       return next();
 
     var hashType = req.params.hash;
