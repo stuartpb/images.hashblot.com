@@ -1,8 +1,7 @@
 var express = require('express');
 var gm = require('gm');
 var hashblot = require('hashblot');
-
-var pdFunctions = {sha1q: hashblot.sha1qpd};
+var crypto = require('crypto');
 
 // Raster types we support for retrieval.
 var rasterTypes = ['png','jpg','jpeg','gif','bmp','tga'];
@@ -26,16 +25,31 @@ var gmopts = opts.gm || {};
   }
 
   function hashpathImage(req, res, next) {
-    var hashpath = req.params.hashpath;
-    var str = req.params.input;
-    var pd;
-    if (pdFunctions[hashpath]) {
-      pd = pdFunctions[hashpath](str);
-    } else return next();
 
+    // 404 for extensions we don't support
     var extension = req.params.extension.toLowerCase();
     if (extension != 'svg' && ~rasterTypes.indexOf(extension))
       return next();
+
+    var hashType = req.params.hash;
+    var hash;
+    var pathType = req.params.path;
+    var str = req.params.input;
+    var pd;
+
+    // If there's a hashblot function for the path type,
+    // define a path from the byte-array-ified buffer for the given hash,
+    // and 404 otherwise
+    if (hashblot.pd[pathType]) {
+      try {
+        hash = crypto.createHash(hashType);
+      } catch (err) {
+        // 404 when the hash type is not supported
+        return next();
+      }
+      pd = hashblot.pd[pathType](Array.apply([],
+        hash.update(str, 'utf8').digest()));
+    } else return next();
 
     var size;
 
@@ -44,19 +58,22 @@ var gmopts = opts.gm || {};
     } catch(err) {
       return res.status(400).send('Invalid image size');
     }
+
     if (size < 15) {
-      res.redirect('/'+ encodeURIComponent(hashpath)
+      res.redirect('/' + encodeURIComponent(hashType)
+        + '/' + encodeURIComponent(pathType)
         + '/15/' + encodeURIComponent(str)
         + '.' + encodeURIComponent(extension));
     } if (size > 2048) {
-      res.redirect('/'+ encodeURIComponent(hashpath)
+      res.redirect('/' + encodeURIComponent(hashType)
+        + '/' + encodeURIComponent(pathType)
         + '/2048/' + encodeURIComponent(str)
         + '.' + encodeURIComponent(extension));
     }
 
     if (extension == 'svg') {
       res.type('svg');
-      res.send(svgPd(size,pd));
+      res.send(svgPd(size, pd));
     } else { // image is a raster type we support
       magickPd(size, pd, extension, function(err, buffer) {
         if (err) return next(err);
@@ -68,7 +85,7 @@ var gmopts = opts.gm || {};
 
   var app = express();
 
-  app.get('/:hashpath/:size/:input(|[^/]+?).:extension', hashpathImage);
+  app.get('/:hash/:path/:size/:input(|[^/]+?).:extension', hashpathImage);
 
   return app;
 };
