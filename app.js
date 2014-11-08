@@ -11,7 +11,7 @@ module.exports = function appctor(opts) {
 var gmopts = opts.gm || {};
   function magickPd(size, pd, type, cb) {
     return gm(size, size, '#fff').options(gmopts)
-    .define('png:exclude-chunks=date')
+    .define('png:exclude-chunk=all')
     .draw([
       'scale', size/255, size/255,
       'fill-rule nonzero',
