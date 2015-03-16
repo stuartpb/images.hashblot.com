@@ -6,6 +6,9 @@ var crypto = require('crypto');
 // Raster types we support for retrieval.
 var rasterTypes = ['png','jpg','jpeg','gif','bmp','tga'];
 
+// Regular expression to see if a hex string is OK (multiple of 8 hex chars)
+var hexrex = /^(?:[a-zA-Z0-9]{8})*$/;
+
 module.exports = function appctor(opts) {
 
 var gmopts = opts.gm || {};
@@ -33,7 +36,7 @@ var gmopts = opts.gm || {};
       return next();
 
     var hashType = req.params.hash;
-    var hash;
+    var hashBytes;
     var pathType = req.params.path;
     var str = req.params.input;
     var pd;
@@ -42,14 +45,18 @@ var gmopts = opts.gm || {};
     // define a path from the byte-array-ified buffer for the given hash,
     // and 404 otherwise
     if (hashblot.pd[pathType]) {
-      try {
-        hash = crypto.createHash(hashType);
+      if (hashType == 'hex') {
+        if (hexrex.test(str)) {
+          hashBytes = hashblot.hexBytes(str);
+        } else return next();
+      } else try {
+        hashBytes = Array.apply([], crypto.createHash(hashType)
+          .update(str, 'utf8').digest());
       } catch (err) {
         // 404 when the hash type is not supported
         return next();
       }
-      pd = hashblot.pd[pathType](Array.apply([],
-        hash.update(str, 'utf8').digest()));
+      pd = hashblot.pd[pathType](hashBytes);
     } else return next();
 
     var size;
