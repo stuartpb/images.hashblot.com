@@ -21,3 +21,5 @@ build/Release
 
 # Dependency directory
 node_modules
+
+.c9
